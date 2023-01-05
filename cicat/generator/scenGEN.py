@@ -45,6 +45,50 @@ from dbLoad import refreshSCENARIOs
 
 trace = False
 
+# -----------DAG support----------
+
+client_id_dict = dict()
+
+dot_node_list = []
+dot_edges = []
+
+'''
+Get client id, if not contained, auto new one.
+'''
+def getId(client):
+    if client not in client_id_dict:
+        client_id = len(client_id_dict) + 1 # Start from 1.
+        client_id_dict[client] = client_id
+
+        dot_node_list.append(f'  {client_id} [label="{client}", shape=ellipse];')
+    return client_id_dict[client]
+
+def genDAG(startIP, startZone, destIP, destZone, IPList):
+    for client_a, client_b in zip(IPList, IPList[1:]):
+        client_a_id, client_b_id = getId(client_a), getId(client_b)
+        if client_a == client_b and client_a_id == client_b_id:
+            print(f'DAG: [WARNING]: {client_a} and {client_b} the same, skipped...')
+            continue
+        dot_edges.append(f'  {client_a_id} -> {client_b_id};')
+
+def dumpDAG(file_name):
+    print('DAG: [WARNING]: will remove redundent edges.')
+    dot_edges_set = set(dot_edges)
+    print('-----------DAG-----------')
+    res_dag = 'digraph G {\n' + '\n'.join(dot_node_list) + '\n'.join(dot_edges_set) + '\n}'
+    print(res_dag)
+    print('-----------DAG-----------')
+
+    print('DAG: [INFO]: dot file export to {file_name}.dot, pdf file export to {file_name}.pdf')
+    from os import system as shell
+    with open(f'{file_name}.dot', 'w') as f:
+        f.write(res_dag)
+    
+    shell(f'dot -Tpdf {file_name}.dot > {file_name}.pdf')
+    
+
+# -----------DAG support----------
+
 def shortlist(listx, num):
     nxt = 0
     for entry in listx:
@@ -303,7 +347,9 @@ def filterIPsbyVulnerability(dataset, iplist, vulnkey):
               continue
        
     return ret  
-        
+ 
+
+ # need to add by yg
 def genSequence(dataset, zonemap, startIP, destIP, surface, platform, trace):
     
      if trace:
@@ -347,7 +393,9 @@ def genScenario(stats, dataset, ffactory, scenario, zonemap, entrypoint, target,
     destZone = target.getZone()
     effectflag = scenario.getIntendedEffect()
     
-    bfull = not(trace)
+    # bfull = not(trace)
+    # yg added
+    bfull = True
     
     ret = defaultdict(list)
     ret['ID'] = scenario.getID()+'EP'+startIP
@@ -360,11 +408,13 @@ def genScenario(stats, dataset, ffactory, scenario, zonemap, entrypoint, target,
        ret['EFFECT'] = effectflag   
 
     iplist = genSequence(dataset, zonemap, startIP, destIP, surface, platform, trace )
-    if len(iplist) < 2:
+    if len(iplist) < 2 or iplist is False:
         if trace:
            print ('No attack path from', startIP+'('+startZone+')', 'to', destIP+'('+destZone+')', 'found.')
         return
                     
+    # 2022-12-29 added: DAG generate.
+    genDAG(startIP, startZone, destIP, destZone, iplist)
     if trace:
        print('Attack path from', startIP+'('+startZone+')', 'to', destIP+'('+destZone+')', ':', iplist)
  
@@ -534,13 +584,16 @@ def generate(Ispread, Tspread, Ospread, Espread, dbUpdate, dbname, trace=False):
     initPatternMenu()
   
     dtstr = getRunDT()
+    #生成场景
     myStats = GENERATE_SCENARIOS(m_DATASET, ffactory, dbUpdate, zonemap, dbname, trace)   
     
     fnamebits = Ospread.split('.xlsx')
     newfname = fnamebits[0]+'.'+ dtstr + '.xlsx'
+    dag_file_name = fnamebits[0] + '.'+ dtstr # no file type.
         
     print ('Outputting results to:', newfname )
     DumpScenario (newfname, myStats, m_DATASET )
+    dumpDAG(dag_file_name)
     
     if Espread:
         enamebits = Espread.split('.xlsx')
@@ -575,7 +628,7 @@ if ( __name__ == "__main__"):
     Espread = None 
     dbUpdate = False
     dbname = 'cicat2'
-    trace = False
+    trace = True
  
     params = sys.argv
     if len(params) > 1:

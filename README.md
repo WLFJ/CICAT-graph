@@ -1,3 +1,27 @@
+# 改进版本使用说明
+
+## 运行环境
+
+目前仅支持Linux系统（如Ubuntu等），需要安装Graphviz软件包（系统默认自带）
+
+## 运行方法
+
+此处以自带案例为例，运行如下命令（和原版没有区别）：
+```bash
+python3 ../generator/scenGEN.py -r -i INFRASTRUCTURE.ap1000.xlsx -s SCENARIOS.ap1000.xlsx -o RESULTS.ap10001.xlsx
+```
+
+或者
+```bash
+bash CCATrun.sh
+```
+
+将生成`.pdf`格式攻击图。
+
+## 路径搜索算法抽取
+
+编辑文件`cicat/generator/path_search_algo.py`即可。
+
 # Critical Infrastructure Cyberspace Analysis Tool (CICAT)
 CICAT is a modeling and simulation tool for evaluating how an adversary might conduct a cyber attack. CICAT uses a threat model that leverages open source cyber threat data provided by MITRE Enterprise ATT&CK™ and ATT&CK for ICS. MITRE developed CICAT to automate production of cyber attack scenarios in support of International Atomic Energy Agency (IAEA) Coordinated Research Program (CRP) J02008: "Enhancing Computer Security Incident Analysis at Nuclear Facilities", which seeks to improve capabilities to prevent, detect, and respond to cyber security incidents at nuclear facilities.
 # Version

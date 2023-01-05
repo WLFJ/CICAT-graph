@@ -140,8 +140,8 @@ def find_all_paths(graph, start, end, path=[]):
                 for newpath in newpaths:
                     paths.append(newpath)
         return paths
-
 def find_shortest_path(graph, start, end, path=[]):
+    '''
         path = path + [start]
         if start == end:
             return path
@@ -156,8 +156,11 @@ def find_shortest_path(graph, start, end, path=[]):
                     if not shortest or len(newpath) < len(shortest):
                         shortest = newpath
         return shortest
+    '''
+    from path_search_algo import find_shortest_path as impl
+    return impl(graph, start, end, path=path)
 
-# looks for ip2 in local zone and remote zone(s) via source zone CIs (1 hop)    
+# looks for ip2 in local zone and remote zone(s) via source zone CIs (1 hop)  add
 def bIsPATH (dataset, graph, ip1, ip2):
     if not(graph) or not(ip1) or not(ip2):
         return False
