@@ -55,21 +55,42 @@ dot_edges = []
 '''
 Get client id, if not contained, auto new one.
 '''
-def getId(client):
-    if client not in client_id_dict:
+def getId(client, tac=False, taced_client_name=''):
+    _client = client
+
+    if tac is True:
+        _client = taced_client_name + client
+
+    if _client not in client_id_dict:
         client_id = len(client_id_dict) + 1 # Start from 1.
-        client_id_dict[client] = client_id
+        client_id_dict[_client] = client_id
 
-        dot_node_list.append(f'  {client_id} [label="{client}", shape=ellipse];')
-    return client_id_dict[client]
+        if tac is True:
+            dot_node_list.append(f'  {client_id} [label="{client}", shape=rectangle];')
+        else:
+            dot_node_list.append(f'  {client_id} [label="{client}", shape=ellipse];')
 
-def genDAG(startIP, startZone, destIP, destZone, IPList):
-    for client_a, client_b in zip(IPList, IPList[1:]):
-        client_a_id, client_b_id = getId(client_a), getId(client_b)
+    return client_id_dict[_client]
+
+def genDAG(startIP, startZone, destIP, destZone, IPList, tacList):
+    for client_a, client_b in zip(tacList, tacList[1:]):
+        client_a_name, client_a_tac, client_b_name, client_b_tac = client_a[0], client_a[1], client_b[0], client_b[1]
+        client_a_id, client_b_id = getId(client_a_name), getId(client_b_name)
+
+        client_a_tac_id_list = [getId(t, tac=True, taced_client_name=client_a_name) for t in client_a_tac]
+        client_b_tac_id_list = [getId(t, tac=True, taced_client_name=client_b_name) for t in client_b_tac]
+
+        '''
         if client_a == client_b and client_a_id == client_b_id:
             print(f'DAG: [WARNING]: {client_a} and {client_b} the same, skipped...')
             continue
-        dot_edges.append(f'  {client_a_id} -> {client_b_id};')
+        '''
+
+        for tac_id in client_a_tac_id_list:
+            dot_edges.append(f'  {tac_id} -> {client_a_id};')
+        for tac_id in client_b_tac_id_list:
+            dot_edges.append(f'  {client_a_id} -> {tac_id};')
+            dot_edges.append(f'  {tac_id} -> {client_b_id};')
 
 def dumpDAG(file_name):
     print('DAG: [WARNING]: will remove redundent edges.')
@@ -79,7 +100,7 @@ def dumpDAG(file_name):
     print(res_dag)
     print('-----------DAG-----------')
 
-    print('DAG: [INFO]: dot file export to {file_name}.dot, pdf file export to {file_name}.pdf')
+    print(f'DAG: [INFO]: dot file export to {file_name}.dot, pdf file export to {file_name}.pdf')
     from os import system as shell
     with open(f'{file_name}.dot', 'w') as f:
         f.write(res_dag)
@@ -414,7 +435,7 @@ def genScenario(stats, dataset, ffactory, scenario, zonemap, entrypoint, target,
         return
                     
     # 2022-12-29 added: DAG generate.
-    genDAG(startIP, startZone, destIP, destZone, iplist)
+    # genDAG(startIP, startZone, destIP, destZone, iplist)
     if trace:
        print('Attack path from', startIP+'('+startZone+')', 'to', destIP+'('+destZone+')', ':', iplist)
  
@@ -423,6 +444,10 @@ def genScenario(stats, dataset, ffactory, scenario, zonemap, entrypoint, target,
          
     vtrace = []   
     patseq = GenTacticPattern(iplist, GetPatternbyName (ret['EFFECT']), True )
+
+    # 2023-01-14 added: DAG generate with tactic.
+    genDAG(startIP, startZone, destIP, destZone, iplist, patseq)
+
     ttpmap = GenTTPSequence (dataset, ffactory, patseq, scenario.getActorID(), True, False ) 
        
     for step in patseq:
