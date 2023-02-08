@@ -85,6 +85,10 @@ def genDAG(startIP, startZone, destIP, destZone, IPList, tacList):
             print(f'DAG: [WARNING]: {client_a} and {client_b} the same, skipped...')
             continue
         '''
+        
+        from prob import prob_topo
+
+        prob_topo.append((client_a_name, client_b_name))
 
         for tac_id in client_a_tac_id_list:
             dot_edges.append(f'  {tac_id} -> {client_a_id};')
@@ -106,7 +110,9 @@ def dumpDAG(file_name):
         f.write(res_dag)
     
     shell(f'dot -Tpdf {file_name}.dot > {file_name}.pdf')
-    
+
+    from prob import prob_get_res
+    prob_get_res()
 
 # -----------DAG support----------
 

@@ -31,6 +31,8 @@ import sys
 from loaddata import LOAD_DATA, m_file_TESTBED_MODEL, m_file_TESTBED_SCNRO  
 from topology import INIT_TOPOLOGY, m_topology, m_zoneCIs
 
+from prob import prob_comp_list
+
 #assumes zone IDs prefixed with 1 digit security level, returns [level, zoneID]
 def zoneSplit (zone):
     return [int(zone[0], zone[1:])]
@@ -499,6 +501,7 @@ def show_ip(dataset, cArray, bshoVs ):
   
    ip = cArray[1]
    cmp = findTargetComponentIP(dataset, ip )
+   prob_comp_list.append(cmp)
    print ('\nIP:', ip, 'System:', cmp.getSysName(), 'Zone:', findZonebyIP(dataset, ip ))
    print ('Vendor:', cmp.getVendor(), 'Type:', cmp.getType(), cmp.getDesc(), 
           'Platform:', cmp.getPlatform() )
