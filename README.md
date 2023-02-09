@@ -1,5 +1,25 @@
 # 改进版本使用说明
 
+## NEW: cvss-demo
+
+```bash
+cd cicat/cvss-example/
+python3 gen.py
+```
+
+场景具体参数配置见`SCENARIO.xlsx`
+
+## CVE爬虫(默认SCENARIO不需要使用)
+
+负责爬取对应的攻击向量
+
+```bash
+cd cicat/tools/
+python3 get-cve-full-info.py
+```
+
+启动脚本后输入cve编号，一行一个，输入结束后以Ctrl-D结束输入。
+
 ## 运行环境
 
 目前仅支持Linux系统（如Ubuntu等），需要安装Graphviz软件包（系统默认自带）
