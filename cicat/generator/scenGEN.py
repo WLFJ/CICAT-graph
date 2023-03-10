@@ -203,6 +203,7 @@ def findActor(dataset, aid ):
 
 def getTargetRecord(dataset, tid):
     for j in dataset['TARGET']:
+        print(j.getName())
         if j.getName() == tid:
             return j
 

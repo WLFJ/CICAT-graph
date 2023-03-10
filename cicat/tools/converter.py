@@ -30,6 +30,7 @@ for row in ws:
 cve_rec_li = []
 cve_set = set()
 for a, c in db.items():
+    print("CT"+a, ','.join(c))
     for cve in c:
         cve_rec_li.append(f'{a} {cve}')
         cve_set.add(cve)

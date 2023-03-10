@@ -556,7 +556,8 @@ class CONNECTION:
             if (t.getID() == self.rtrTyp):
                self.ctype = t
                return        
-        print ('Warning: CTYPE of controlled interface', self.cnt ,' not recognized', self.rtrTyp, self.srcsys, self.cnt)    
+        print ('Warning: CTYPE of controlled interface', self.cnt ,' not recognized')    
+        # here we may need to contruct predefined cve list.
     
     def isPoned(self):
         if (self.cflag > 0):

@@ -166,7 +166,7 @@ def p_innter(cve):
 
 if __name__ == '__main__':
 	from openpyxl import load_workbook
-	wb = load_workbook('SCENARIO.xlsx')
+	wb = load_workbook('SCENARIO-new-fake.xlsx')
 
 	# load related data into runtime
 	load_assets(wb.worksheets[0])
