@@ -6,9 +6,18 @@ def crawler(cve_list):
     print('input cve_list:', cve_list)
 
     import re
-    vec_re = re.compile('class="tooltipCvss2NistMetrics">\((.*)\)</span></span>  <input')
+    '''
+-    vec_re = re.compile('class="tooltipCvss2NistMetrics">\((.*)\)</span></span>  <input')
++    vec_re = re.compile('tooltipCvss3NistMetrics">CVSS:3.1/(.*)</span></span> <input')
 
-    title = ['AV', 'AC', 'AU', 'RC', 'E', 'Hide', 'Capacity', 'C', 'I', 'A', 'CR', 'IR', 'AR', 'RL', 'VAL']
+-    title = ['AV', 'AC', 'AU', 'RC', 'E', 'Hide', 'Capacity', 'C', 'I', 'A', 'CR', 'IR', 'AR', 'RL', 'VAL']
++    title = ['AV', 'AC', 'PR', 'UI', 'S', 'C', 'I', 'A']
+
+    '''
+    vec_re_3 = re.compile('tooltipCvss3NistMetrics">CVSS:3.1/(.*)</span></span> <input')
+    vec_re_2 = re.compile('class="tooltipCvss2NistMetrics">\((.*)\)</span></span>  <input')
+
+    title = ['AV', 'AC', 'AU', 'RC', 'E', 'Hide', 'Capacity', 'C', 'I', 'A', 'CR', 'IR', 'AR', 'RL', 'VAL', 'PR', 'UI', 'S']
 
     res = {}
 
@@ -18,14 +27,36 @@ def crawler(cve_list):
         import requests
         back_text = requests.get(fetch_url).text
         back_text = back_text.replace('\t', '').replace('\n', '').replace('\r', '')
-        if vec_re.search(back_text) is None:
-            print(f'warning: {cve} callback error. maybe not found?')
-            continue
-        vector = vec_re.search(back_text).group(1)
+
+        if vec_re_2.search(back_text) is None:
+            print(f'warning: cvss 2.0 {cve} callback error. maybe not found?')
+        else:
+            print(f'fetch done.')
+
+        if vec_re_3.search(back_text) is None:
+            print(f'warning: cvss 3.0 {cve} callback error. maybe not found?')
+        else:
+            print(f'fetch done.')
+
+        if vec_re_2.search(back_text) == None:
+            vector = ''
+        else:
+            vector = vec_re_2.search(back_text).group(1)
+
+        if vec_re_3.search(back_text) == None:
+            vector += ''
+        else:
+            vector += '/' + vec_re_3.search(back_text).group(1)
+
         print('back_res', vector)
         vec_dict = {}
         for kv in vector.split('/'):
-            k, v = kv.split(':')
+            try:
+                k, v = kv.split(':')
+            except ValueError:
+                continue
+            if k.upper() in vec_dict:
+                continue
             vec_dict[k.upper()] = v
 
         # print(vec_dict)
