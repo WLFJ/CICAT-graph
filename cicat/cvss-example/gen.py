@@ -28,6 +28,7 @@ def cve_impact(cve):
 
 
 assets = {}
+is_head = {}
 
 def load_assets(ws):
 	is_title = True
@@ -55,6 +56,11 @@ def load_topo(ws):
 			graph[a].append(b)
 		else:
 			graph[a] = [b]
+
+	for k, v in graph.items():
+		for n in v:
+			is_head[n] = False
+	print('[load_topo]: is_head info: ', is_head)
 
 
 cves = {}
@@ -158,15 +164,17 @@ def clean_cve():
 			else:
 				print('[clean_cve]: error: not found field: ' + t)
 
-def p_innter(cve):
+def p_innter(cve, is_head=False):
 	# how to map val?
 	res = 1.0
-	# print('------------')
+	print(f'---涉及CVE：{cve}--计算过程--------')
 	for k, v in cve.items():
-		# print(k, v)
+		if is_head and k in ['i']:
+			continue
 		if k in ['av', 'ac', 'au', 'i']:
 			res *= v
-	# print('------------')
+			print(k, v)
+	print('------------')
 	res *= 0.85 # UI
 	return res
 
@@ -191,9 +199,14 @@ if __name__ == '__main__':
 	for k, v in assets.items():
 		# calc each cve, only save the maximum one.
 		max_cve_p_inner = -1.0
+		is_not_head = True
+		if k not in is_head:
+			is_not_head = False
+		print(f'>>>>开始计算节点：{k}, is_head: {not is_not_head}<<<<<<<')
 		for cve_id in v:
-			cve_res = p_innter(cves[cve_id])
+			cve_res = p_innter(cves[cve_id], not is_not_head)
 			max_cve_p_inner = max(max_cve_p_inner, cve_res)
+		print(f'>>>>结束计算：{k}, 结果：{max_cve_p_inner}<<<<<<<')
 
 		n_pi[k] = max_cve_p_inner
 
@@ -285,7 +298,7 @@ if __name__ == '__main__':
 			# here we also need to add number on it.
 			pi = round(n_pi[_client],3) if _client in n_pi else 1.0
 			p = round(ps[_client],3) if _client in ps else '--'
-			dot_node_list.append(f'  {client_id} [label="{client}\\np_inner={pi}, p={p}", shape=ellipse];')
+			dot_node_list.append(f'  {client_id} [label="{client}\\np_RA={pi}, p={p}", shape=ellipse];')
 
 		return client_id_dict[_client]
 
