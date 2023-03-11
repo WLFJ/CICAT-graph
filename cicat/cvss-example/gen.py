@@ -161,9 +161,12 @@ def clean_cve():
 def p_innter(cve):
 	# how to map val?
 	res = 1.0
+	# print('------------')
 	for k, v in cve.items():
-		if k in ['av', 'ac', 'au']:
+		# print(k, v)
+		if k in ['av', 'ac', 'au', 'i']:
 			res *= v
+	# print('------------')
 	res *= 0.85 # UI
 	return res
 
