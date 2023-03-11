@@ -61,11 +61,11 @@ cves = {}
 
 def load_cve(ws):
 	is_title = True
-	for (k, av, ac, au, rc, e, hide, capacity, c, i, a, cr, ir, ar, rl, val) in ws.rows:
+	for (k, av, ac, au, rc, e, hide, capacity, c, i, a, cr, ir, ar, rl, val, pr, ui, s) in ws.rows:
 		if is_title:
 			is_title = False
 			continue
-		(k, av, ac, au, rc, e, hide, capacity, c, i, a, cr, ir, ar, rl, val) = (k.value, av.value, ac.value, au.value, rc.value, e.value, hide.value, capacity.value, c.value, i.value, a.value, cr.value, ir.value, ar.value, rl.value, val.value)
+		(k, av, ac, au, rc, e, hide, capacity, c, i, a, cr, ir, ar, rl, val, pr, ui, s) = (k.value, av.value, ac.value, au.value, rc.value, e.value, hide.value, capacity.value, c.value, i.value, a.value, cr.value, ir.value, ar.value, rl.value, val.value, pr.value, ui.value, s.value)
 		
 		
 		cves[k] = {
@@ -84,6 +84,9 @@ def load_cve(ws):
 			'ar': ar,
 			'rl': rl,
 			'val': val,
+            'pr': pr,
+            'ui': ui,
+            's': s,
 		}
 	
 
@@ -159,8 +162,9 @@ def p_innter(cve):
 	# how to map val?
 	res = 1.0
 	for k, v in cve.items():
-		if k in ['av', 'ac', 'au', 'rc', 'e', 'hide', 'capability']:
-			res = res * v
+		if k in ['av', 'ac', 'au']:
+			res *= v
+	res *= 0.85 # UI
 	return res
 
 
